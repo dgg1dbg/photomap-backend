@@ -19,7 +19,7 @@ Post 페이지에서는, 업로드한 사진들, 사진들의 메타데이터, �
 ## Project Files
 
 ### 1. domain
-![domains](./6/png)
+![domains](./6.png)
 - picture: post에 들어있는 사진 한 장에 대한 모델
 - post: 업로드한 post에 대한 모델
 - user: user에 대한 모델
