@@ -2,7 +2,6 @@ package com.jmlee.photomap.domain.user.service
 
 import com.jmlee.photomap.domain.user.dto.UserDto
 import com.jmlee.photomap.domain.user.exception.UserAlreadyExistsException
-import com.jmlee.photomap.domain.user.exception.UserNotAllowedException
 import com.jmlee.photomap.domain.user.exception.UserNotFoundException
 import com.jmlee.photomap.domain.user.model.User
 import com.jmlee.photomap.domain.user.repository.UserRepository
@@ -26,7 +25,7 @@ class UserService(
         return userRepository.save(newUser)
     }
     @Transactional
-    fun edit(user: User, editRequest: UserDto.EditRequest): User {
+    fun edit(user: User, editRequest: UserDto.UserEditRequest): User {
         if(userRepository.findByUsername(editRequest.username) != null) {
             throw UserAlreadyExistsException()
         }
@@ -38,7 +37,7 @@ class UserService(
         return user
 
     }
-    fun delete(deleteRequest: UserDto.DeleteRequest) {
+    fun delete(deleteRequest: UserDto.UserDeleteRequest) {
         val user = userRepository.findByUsername(deleteRequest.username) ?: throw UserNotFoundException()
         userRepository.delete(user)
     }

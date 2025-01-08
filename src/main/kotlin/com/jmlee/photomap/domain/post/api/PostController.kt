@@ -11,14 +11,20 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.*
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 
 @RestController
 @RequestMapping("/api/post")
+@Tag(name = "Post API", description = "Post API")
 class PostController (
     private val postService: PostService
 ){
     @PostMapping("/create")
+    @Operation(
+        summary = "Create a new post",
+        description = "Allows a user to create a new post with associated pictures, descriptions, and coordinates."
+    )
     fun create(
         @CurrentUser user: User,
         @RequestParam(name = "name") name: String,
@@ -29,19 +35,27 @@ class PostController (
         @RequestParam(name = "files") files: List<MultipartFile>,
         @RequestParam(name = "descriptions") descriptions: List<String>,
         @RequestParam(name = "coordinates") coordinatesJson: String
-        ): PostDto.Response{
+        ): PostDto.PostResponse{
         val coordinates = parseCoordinates(coordinatesJson)
-        val postCreateRequest = PostDto.CreateRequest(name, hashtag, date, time, description)
-        val pictureCreateRequests = files.mapIndexed { index, file ->  PictureDto.CreateRequest(descriptions[index], file, coordinates[index])}
+        val postCreateRequest = PostDto.PostCreateRequest(name, hashtag, date, time, description)
+        val pictureCreateRequests = files.mapIndexed { index, file ->  PictureDto.PictureCreateRequest(descriptions[index], file, coordinates[index])}
         val post = postService.create(user, postCreateRequest, pictureCreateRequests)
-        return PostDto.Response(post)
+        return PostDto.PostResponse(post)
     }
     @GetMapping("/view/{id}")
-    fun view(@PathVariable id: Long): PostDto.Response{
+    @Operation(
+        summary = "View a post",
+        description = "Retrieves the details of a post by its ID."
+    )
+    fun view(@PathVariable id: Long): PostDto.PostResponse{
         val post = postService.view(id)
-        return PostDto.Response(post)
+        return PostDto.PostResponse(post)
     }
     @PutMapping("/edit/{id}")
+    @Operation(
+        summary = "Edit a post",
+        description = "Allows a user to edit an existing post, including adding or modifying associated pictures."
+    )
     fun edit(
         @CurrentUser user: User,
         @RequestParam(name = "name") name: String,
@@ -53,29 +67,33 @@ class PostController (
         @RequestParam(name = "files") files: List<MultipartFile> = listOf(),
         @RequestParam(name = "descriptions") descriptions: List<String> = listOf(),
         @RequestParam(name = "coordinates") coordinatesJson: String = "",
-        @PathVariable id: Long): PostDto.Response{
-        val pictureEditRequests: List<PictureDto.EditRequest>
+        @PathVariable id: Long): PostDto.PostResponse{
+        val pictureEditRequests: List<PictureDto.PictureEditRequest>
 
         if (existingPictures.isEmpty()) pictureEditRequests = listOf()
         else pictureEditRequests = parseEditRequest("[$existingPictures]")
 
-        val pictureCreateRequests: List<PictureDto.CreateRequest>
+        val pictureCreateRequests: List<PictureDto.PictureCreateRequest>
 
         if (coordinatesJson.isEmpty()) pictureCreateRequests = listOf()
         else{
             val coordinates = parseCoordinates(coordinatesJson)
-            pictureCreateRequests = descriptions.mapIndexed { index, desc -> PictureDto.CreateRequest(desc, files[index], coordinates[index]) }
+            pictureCreateRequests = descriptions.mapIndexed { index, desc -> PictureDto.PictureCreateRequest(desc, files[index], coordinates[index]) }
         }
-        val postEditRequest = PostDto.EditRequest(name, hashtag, date, time, description)
+        val postEditRequest = PostDto.PostEditRequest(name, hashtag, date, time, description)
 
 
         val post = postService.edit(user, id, postEditRequest, pictureEditRequests, pictureCreateRequests)
-        return PostDto.Response(post)
+        return PostDto.PostResponse(post)
     }
     @DeleteMapping("/{id}")
-    fun delete(@CurrentUser user: User, @PathVariable id: Long): PostDto.DeleteResponse{
+    @Operation(
+        summary = "Delete a post",
+        description = "Allows a user to delete a specific post by its ID."
+    )
+    fun delete(@CurrentUser user: User, @PathVariable id: Long): PostDto.PostDeleteResponse{
         postService.delete(user, id)
-        return PostDto.DeleteResponse()
+        return PostDto.PostDeleteResponse()
     }
     fun parseCoordinates(input: String): List<List<Double>> {
         return input
@@ -86,7 +104,7 @@ class PostController (
                     .map { it.toDouble() }
             }
     }
-    fun parseEditRequest(jsonString: String): List<PictureDto.EditRequest> {
+    fun parseEditRequest(jsonString: String): List<PictureDto.PictureEditRequest> {
         val mapper = jacksonObjectMapper()
 
         // Parse the JSON string to a list of maps
@@ -95,7 +113,7 @@ class PostController (
         // Convert each map to an EditRequest object
         return jsonList.mapNotNull { item ->
             try {
-                PictureDto.EditRequest(
+                PictureDto.PictureEditRequest(
                     id = (item["id"] as Number).toLong(),
                     description = item["description"] as? String ?: "",
                     coordinate = parseCoordinate(item["coordinates"])

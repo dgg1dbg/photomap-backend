@@ -9,7 +9,6 @@ import com.jmlee.photomap.domain.post.exception.PostNotFoundException
 import com.jmlee.photomap.domain.post.model.Post
 import com.jmlee.photomap.domain.post.repository.PostRepository
 import com.jmlee.photomap.domain.user.exception.UserNotAllowedException
-import com.jmlee.photomap.domain.user.exception.UserNotFoundException
 import com.jmlee.photomap.domain.user.model.User
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -22,8 +21,8 @@ class PostService(
 ) {
     fun create(
         user: User,
-        postCreateRequest: PostDto.CreateRequest,
-        pictureCreateRequests: List<PictureDto.CreateRequest>
+        postCreateRequest: PostDto.PostCreateRequest,
+        pictureCreateRequests: List<PictureDto.PictureCreateRequest>
     ): Post {
         val pictures : MutableList<Picture> = pictureCreateRequests.map { pictureService.create(it)}.toMutableList()
         val newPost = Post(postCreateRequest, user, pictures)
@@ -38,7 +37,7 @@ class PostService(
     }
 
     @Transactional
-    fun edit(user: User, id: Long, postEditRequest: PostDto.EditRequest, pictureEditRequests: List<PictureDto.EditRequest>, pictureCreateRequests: List<PictureDto.CreateRequest>): Post {
+    fun edit(user: User, id: Long, postEditRequest: PostDto.PostEditRequest, pictureEditRequests: List<PictureDto.PictureEditRequest>, pictureCreateRequests: List<PictureDto.PictureCreateRequest>): Post {
         val post = user.posts.find { it.id == id } ?: throw UserNotAllowedException()
         post.edit(postEditRequest)
         val pictureEditRequestIds = pictureEditRequests.map { it.id }.toSet()

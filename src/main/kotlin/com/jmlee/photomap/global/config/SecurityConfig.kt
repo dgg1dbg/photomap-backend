@@ -56,6 +56,7 @@ class SecurityConfig(
             .addFilter(signInLoginFilter)
             .addFilter(jwtAuthenticationFilter)
             .authorizeHttpRequests {
+                it.requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/picture/**").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/api/user/signup").anonymous()
                 it.requestMatchers(HttpMethod.DELETE, "/api/user/delete").hasAuthority("admin")

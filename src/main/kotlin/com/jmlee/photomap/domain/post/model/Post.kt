@@ -26,7 +26,7 @@ class Post(
     @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE], orphanRemoval = true)
     var pictures: MutableList<Picture>,
 ): BaseTimeEntity() {
-    constructor(postCreateRequest: PostDto.CreateRequest, user: User, pictures: MutableList<Picture>) : this(
+    constructor(postCreateRequest: PostDto.PostCreateRequest, user: User, pictures: MutableList<Picture>) : this(
         name = postCreateRequest.name,
         hashtag = postCreateRequest.hashtag,
         date = postCreateRequest.date,
@@ -35,7 +35,7 @@ class Post(
         user = user,
         pictures = pictures
     )
-    fun edit(postEditRequest: PostDto.EditRequest) {
+    fun edit(postEditRequest: PostDto.PostEditRequest) {
         name = postEditRequest.name
         hashtag = postEditRequest.hashtag
         date = postEditRequest.date

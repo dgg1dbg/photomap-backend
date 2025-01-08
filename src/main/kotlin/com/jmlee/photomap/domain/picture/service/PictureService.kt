@@ -5,7 +5,6 @@ import com.jmlee.photomap.domain.picture.exception.FileError
 import com.jmlee.photomap.domain.picture.model.Picture
 import com.jmlee.photomap.domain.picture.model.PictureNotFoundException
 import com.jmlee.photomap.domain.picture.repository.PictureRepository
-import com.jmlee.photomap.global.common.exception.ConflictException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File
@@ -24,7 +23,7 @@ class PictureService(
     @Value("\${app.upload.dir}") private val uploadDir: String
 ) {
     private val logger = LoggerFactory.getLogger(PictureService::class.java)
-    fun create(pictureCreateRequest: PictureDto.CreateRequest): Picture{
+    fun create(pictureCreateRequest: PictureDto.PictureCreateRequest): Picture{
 
         val uuid = UUID.randomUUID().toString()
         val pictureFileName = uuid + "_" + pictureCreateRequest.file.getOriginalFilename()
