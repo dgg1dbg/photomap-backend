@@ -22,7 +22,7 @@ spring:
 ---
 app:
   upload:
-    dir: ${user.home}/Desktop/pics/
+    dir: ${user.home}/data/photomap/
 
 ---
 springdoc:
