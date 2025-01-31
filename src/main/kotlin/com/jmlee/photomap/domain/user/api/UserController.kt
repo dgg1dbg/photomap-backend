@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 
 @RestController
 @RequestMapping("/api/user")
@@ -19,7 +20,7 @@ class UserController(
 ) {
     @PostMapping("/signup")
     @Operation(summary = "Register a new user")
-    fun signup(@RequestBody signupRequest: UserDto.SignUpRequest): ResponseEntity<UserDto.UserResponse>{
+    fun signup(@Valid @RequestBody signupRequest: UserDto.SignUpRequest): ResponseEntity<UserDto.UserResponse>{
         val user = userService.create(signupRequest)
         return ResponseEntity.noContent().header("Authentication", jwtTokenProvider.generateToken(user.email)).build()
     }
@@ -30,7 +31,7 @@ class UserController(
     }
     @PutMapping("/edit")
     @Operation(summary = "Edit your information")
-    fun edit(@CurrentUser user: User, @RequestBody editRequest: UserDto.UserEditRequest): UserDto.UserResponse{
+    fun edit(@CurrentUser user: User, @Valid @RequestBody editRequest: UserDto.UserEditRequest): UserDto.UserResponse{
         val user = userService.edit(user, editRequest)
         return UserDto.UserResponse(user)
     }
@@ -47,7 +48,7 @@ class UserController(
     }
     @DeleteMapping("/delete")
     @Operation(summary = "Delete your information")
-    fun delete(@RequestBody deleteRequest: UserDto.UserDeleteRequest): UserDto.UserDeleteResponse{
+    fun delete(@Valid @RequestBody deleteRequest: UserDto.UserDeleteRequest): UserDto.UserDeleteResponse{
         userService.delete(deleteRequest)
         return UserDto.UserDeleteResponse()
     }
