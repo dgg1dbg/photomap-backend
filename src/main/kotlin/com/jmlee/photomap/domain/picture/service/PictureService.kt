@@ -33,7 +33,7 @@ class PictureService(
         } catch(e: IOException) {
             throw FileError(e.message?: "")
         }
-        val newPicture = Picture(pictureFileName, pictureCreateRequest, destinationFile)
+        val newPicture = Picture(uploadDir + pictureFileName, pictureCreateRequest, destinationFile)
         return pictureRepository.save(newPicture)
     }
     fun view(id: Long): Picture {
