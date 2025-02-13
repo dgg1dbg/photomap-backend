@@ -35,12 +35,12 @@ class PostController (
         @RequestParam(name = "files") files: List<MultipartFile>,
         @RequestParam(name = "descriptions") descriptions: List<String>,
         @RequestParam(name = "coordinates") coordinatesJson: String
-        ): PostDto.PostResponse{
+        ): PostDto.PostCreateResponse{
         val coordinates = parseCoordinates(coordinatesJson)
         val postCreateRequest = PostDto.PostCreateRequest(name, hashtag, date, time, description)
         val pictureCreateRequests = files.mapIndexed { index, file ->  PictureDto.PictureCreateRequest(descriptions[index], file, coordinates[index])}
         val post = postService.create(user, postCreateRequest, pictureCreateRequests)
-        return PostDto.PostResponse(post)
+        return PostDto.PostCreateResponse(post)
     }
     @GetMapping("/view/{id}")
     @Operation(

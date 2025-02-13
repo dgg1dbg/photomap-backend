@@ -81,6 +81,18 @@ class PostDto {
         )
     }
 
+    @Schema(description = "Response for a successful post creation operation")
+    data class PostCreateResponse(
+        @Schema(description = "ID of the created post", example = "1")
+        val id: Long,
+        @Schema(description = "Success message", example = "Success")
+        val success: String = "Success",
+    ) {
+        constructor(post: Post) : this(
+            id = post.id,
+        )
+    }
+
     @Schema(description = "Response for a successful deletion operation")
     data class PostDeleteResponse(
         @Schema(description = "Success message", example = "Success")
