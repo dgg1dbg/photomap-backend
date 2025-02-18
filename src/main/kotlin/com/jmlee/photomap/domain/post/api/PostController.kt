@@ -63,28 +63,21 @@ class PostController (
         @RequestParam(name = "date") date: LocalDate,
         @RequestParam(name = "time") time: LocalTime,
         @RequestParam(name = "description") description: String,
-        @RequestParam(name = "existingPictures") existingPictures: String = "",
         @RequestParam(name = "files") files: List<MultipartFile> = listOf(),
+        @RequestParam(name = "paths") paths: List<String> = listOf(),
         @RequestParam(name = "descriptions") descriptions: List<String> = listOf(),
         @RequestParam(name = "coordinates") coordinatesJson: String = "",
-        @PathVariable id: Long): PostDto.PostResponse{
-        val pictureEditRequests: List<PictureDto.PictureEditRequest>
+        @PathVariable id: Long): PostDto.PostCreateResponse{
 
-        if (existingPictures.isEmpty()) pictureEditRequests = listOf()
-        else pictureEditRequests = parseEditRequest("[$existingPictures]")
-
-        val pictureCreateRequests: List<PictureDto.PictureCreateRequest>
-
-        if (coordinatesJson.isEmpty()) pictureCreateRequests = listOf()
-        else{
+            val fileAndPaths : MutableList<Any> = mutableListOf()
+            fileAndPaths.addAll(paths)
+            fileAndPaths.addAll(files)
+        
             val coordinates = parseCoordinates(coordinatesJson)
-            pictureCreateRequests = descriptions.mapIndexed { index, desc -> PictureDto.PictureCreateRequest(desc, files[index], coordinates[index]) }
-        }
-        val postEditRequest = PostDto.PostEditRequest(name, hashtag, date, time, description)
-
-
-        val post = postService.edit(user, id, postEditRequest, pictureEditRequests, pictureCreateRequests)
-        return PostDto.PostResponse(post)
+            val postEditRequest = PostDto.PostEditRequest(name, hashtag, date, time, description)
+            val pictureEditRequests = fileAndPaths.mapIndexed { index, file ->  PictureDto.PictureEditRequest(descriptions[index], file, coordinates[index])}
+            val post = postService.edit(user, id, postEditRequest, pictureEditRequests);
+            return PostDto.PostCreateResponse(post)
     }
     @DeleteMapping("/{id}")
     @Operation(
@@ -104,27 +97,27 @@ class PostController (
                     .map { it.toDouble() }
             }
     }
-    fun parseEditRequest(jsonString: String): List<PictureDto.PictureEditRequest> {
-        val mapper = jacksonObjectMapper()
+    // fun parseEditRequest(jsonString: String): List<PictureDto.PictureEditRequest> {
+    //     val mapper = jacksonObjectMapper()
 
-        // Parse the JSON string to a list of maps
-        val jsonList: List<Map<String, Any>> = mapper.readValue(jsonString)
+    //     // Parse the JSON string to a list of maps
+    //     val jsonList: List<Map<String, Any>> = mapper.readValue(jsonString)
 
-        // Convert each map to an EditRequest object
-        return jsonList.mapNotNull { item ->
-            try {
-                PictureDto.PictureEditRequest(
-                    id = (item["id"] as Number).toLong(),
-                    description = item["description"] as? String ?: "",
-                    coordinate = parseCoordinate(item["coordinates"])
-                )
-            } catch (e: Exception) {
-                println("Error parsing item: $item")
-                e.printStackTrace()
-                null
-            }
-        }
-    }
+    //     // Convert each map to an EditRequest object
+    //     return jsonList.mapNotNull { item ->
+    //         try {
+    //             PictureDto.PictureEditRequest(
+    //                 id = (item["id"] as Number).toLong(),
+    //                 description = item["description"] as? String ?: "",
+    //                 coordinate = parseCoordinate(item["coordinates"])
+    //             )
+    //         } catch (e: Exception) {
+    //             println("Error parsing item: $item")
+    //             e.printStackTrace()
+    //             null
+    //         }
+    //     }
+    // }
 
     fun parseCoordinate(coordinates: Any?): List<Double> {
         return when (coordinates) {

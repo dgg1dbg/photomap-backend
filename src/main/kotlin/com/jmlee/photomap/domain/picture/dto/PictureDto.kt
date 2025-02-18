@@ -20,14 +20,14 @@ class PictureDto {
 
     @Schema(description = "Request to edit an existing picture")
     data class PictureEditRequest(
-        @Schema(description = "ID of the picture", example = "1")
-        val id: Long,
-
         @Schema(description = "Description of the picture", example = "A beautiful sunset")
         val description: String = "",
 
+        @Schema(description = "File of the picture", required = true)
+        val file: Any,
+
         @Schema(description = "Coordinates of the picture in latitude and longitude", example = "[37.7749, -122.4194]")
-        val coordinate: List<Double>,
+        val coordinate: List<Double>
     )
 
     @Schema(description = "Response representing a picture")

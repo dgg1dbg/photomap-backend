@@ -14,4 +14,6 @@ interface PictureRepository: JpaRepository<Picture, Long> {
     @Modifying
     @Query("DELETE FROM Picture p WHERE p IN :pictures")
     fun deleteAllInBatch(pictures: List<Picture>)
+    @Query("SELECT p FROM Picture p WHERE p.fileDir = :fileDir")
+    fun findByPictureByFileDir(@Param("fileDir") fileDir: String): Picture?
 }
