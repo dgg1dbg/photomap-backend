@@ -29,9 +29,9 @@ class PictureController(
         val pictures: List<Picture> = pictureService.viewAll()
         return pictures.map {PictureDto.PictureResponse(it)}
     }
-    @GetMapping("/{dir}")
+    @GetMapping
     @Operation(summary = "Get a picture file by its directory", description = "Fetches a picture file based on the directory name provided.")
-    fun get(@PathVariable dir: String): ResponseEntity<Resource>{
+    fun get(@RequestParam dir: String): ResponseEntity<Resource>{
         val resource = pictureService.load(dir)
         return ResponseEntity.ok()
             .contentType(MediaType.IMAGE_JPEG)
