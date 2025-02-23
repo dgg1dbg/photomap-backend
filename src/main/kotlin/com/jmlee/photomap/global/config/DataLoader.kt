@@ -8,15 +8,3 @@ import org.springframework.boot.ApplicationRunner
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
-
-@Component
-class DataLoader(
-    private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
-): ApplicationRunner {
-    override fun run(args: ApplicationArguments) {
-        val newSignUpRequest = UserDto.SignUpRequest("jlee", "jeongminx@snu.ac.kr", "aass1223", "hi")
-        val newUser = User(newSignUpRequest, passwordEncoder)
-        userRepository.save(newUser)
-    }
-}
