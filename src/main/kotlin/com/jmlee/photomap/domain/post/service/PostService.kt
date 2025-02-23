@@ -12,6 +12,8 @@ import com.jmlee.photomap.domain.user.exception.UserNotAllowedException
 import com.jmlee.photomap.domain.user.model.User
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
+
 
 @Service
 class PostService(
@@ -37,24 +39,36 @@ class PostService(
     }
 
     @Transactional
-    fun edit(user: User, id: Long, postEditRequest: PostDto.PostEditRequest, pictureEditRequests: List<PictureDto.PictureEditRequest>, pictureCreateRequests: List<PictureDto.PictureCreateRequest>): Post {
+    fun edit(user: User, id: Long, postEditRequest: PostDto.PostEditRequest, pictureEditRequests: List<PictureDto.PictureEditRequest>): Post {
         val post = user.posts.find { it.id == id } ?: throw UserNotAllowedException()
         post.edit(postEditRequest)
-        val pictureEditRequestIds = pictureEditRequests.map { it.id }.toSet()
-        val picturesToDelete = post.pictures.filter { it.id !in pictureEditRequestIds }
-        for (picture in post.pictures){
-            val pictureEditRequest = pictureEditRequests.find { it.id == picture.id }
-            if (pictureEditRequest != null) {
-                picture.description = pictureEditRequest.description
-                picture.longitude = pictureEditRequest.coordinate[0]
-                picture.latitude = pictureEditRequest.coordinate[1]
-                pictureRepository.save(picture)
+        val pictures : MutableList<Picture> = pictureEditRequests.mapNotNull { 
+            when (it.file) {
+                is MultipartFile -> {
+                    pictureService.create(PictureDto.PictureCreateRequest(it.description, it.file, it.coordinate))
+                }
+                is String -> {
+                    val picture = pictureRepository.findByPictureByFileDir(it.file)
+                    picture?.description = it.description
+                    if (it.coordinate.size >= 2) { 
+                        picture?.longitude = it.coordinate[0]
+                        picture?.latitude = it.coordinate[1]
+                    }
+                    pictureRepository.save(picture!!)
+                }
+                else -> null
             }
+        }.toMutableList()
+
+        val picturesToDelete = post.pictures.filter { existing -> 
+            pictures.none {it.id == existing.id}
         }
-        pictureRepository.deleteAllInBatch(picturesToDelete)
-        val pictures : MutableList<Picture> = pictureCreateRequests.map { pictureService.create(it)}.toMutableList()
-        post.pictures.addAll(pictures)
-        post.pictures.forEach { it.post = post }
+        
+        picturesToDelete.forEach { picture ->
+            pictureRepository.delete(picture)
+        }
+
+        pictures.forEach {it.post = post}
         return postRepository.save(post)
     }
 
