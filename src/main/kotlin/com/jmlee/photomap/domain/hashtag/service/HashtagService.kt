@@ -11,13 +11,14 @@ import com.jmlee.photomap.domain.hashtag.model.Hashtag
 
 @Service
 class HashtagService(
-    val hashtagRepository: HashtagRepository
+    val hashtagRepository: HashtagRepository,
+    val postRepository: PostRepository
 ) {
     fun getPosts(hashtag: String): List<Post>? {
-        return hashtagRepository.getPosts(hashtag.lowercase())
+        return postRepository.getPostsByHashtag(hashtag.lowercase())
     }
     fun getPictures(hashtag: String): List<Picture>? {
-        val posts = hashtagRepository.getPosts(hashtag.lowercase())
+        val posts = postRepository.getPostsByHashtag(hashtag.lowercase())
         val pictures = mutableListOf<Picture>()
         posts?.forEach { pictures.addAll(it.pictures) }
         return pictures

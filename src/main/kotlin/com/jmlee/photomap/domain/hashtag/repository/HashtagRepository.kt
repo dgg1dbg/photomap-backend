@@ -7,8 +7,6 @@ import com.jmlee.photomap.domain.hashtag.model.Hashtag
 import com.jmlee.photomap.domain.post.model.Post
 
 interface HashtagRepository: JpaRepository<Hashtag, Long> {
-    @Query("SELECT h FROM Hashtag h WHERE h.name = :name")
-    fun getPosts(name: String): List<Post>?
     @Query("SELECT h FROM Hashtag h WHERE h.name LIKE :name%")
     fun getHashtag(name: String): List<Hashtag>?
     @Query("SELECT h FROM Hashtag h WHERE h.name = :name")
