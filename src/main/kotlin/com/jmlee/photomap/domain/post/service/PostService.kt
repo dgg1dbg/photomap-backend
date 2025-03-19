@@ -8,6 +8,7 @@ import com.jmlee.photomap.domain.post.dto.PostDto
 import com.jmlee.photomap.domain.post.exception.PostNotFoundException
 import com.jmlee.photomap.domain.post.model.Post
 import com.jmlee.photomap.domain.post.repository.PostRepository
+import com.jmlee.photomap.domain.hashtag.repository.HashtagRepository
 import com.jmlee.photomap.domain.user.exception.UserNotAllowedException
 import com.jmlee.photomap.domain.user.model.User
 import jakarta.transaction.Transactional
@@ -19,7 +20,8 @@ import org.springframework.web.multipart.MultipartFile
 class PostService(
     val postRepository: PostRepository,
     val pictureService: PictureService,
-    val pictureRepository: PictureRepository
+    val pictureRepository: PictureRepository,
+    val hashtagRepository: HashtagRepository
 ) {
     fun create(
         user: User,
@@ -27,7 +29,7 @@ class PostService(
         pictureCreateRequests: List<PictureDto.PictureCreateRequest>
     ): Post {
         val pictures : MutableList<Picture> = pictureCreateRequests.map { pictureService.create(it)}.toMutableList()
-        val newPost = Post(postCreateRequest, user, pictures)
+        val newPost = Post(postCreateRequest, hashtagRepository, user, pictures)
         user.posts.add(newPost)
         pictures.forEach { it.post = newPost }
         return postRepository.save(newPost)
@@ -41,7 +43,7 @@ class PostService(
     @Transactional
     fun edit(user: User, id: Long, postEditRequest: PostDto.PostEditRequest, pictureEditRequests: List<PictureDto.PictureEditRequest>): Post {
         val post = user.posts.find { it.id == id } ?: throw UserNotAllowedException()
-        post.edit(postEditRequest)
+        post.edit(postEditRequest, hashtagRepository)
         val pictures : MutableList<Picture> = pictureEditRequests.mapNotNull { 
             when (it.file) {
                 is MultipartFile -> {

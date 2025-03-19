@@ -72,7 +72,7 @@ class PostDto {
     ) {
         constructor(post: Post) : this(
             name = post.name,
-            hashtag = post.hashtag,
+            hashtag = post.hashtags.joinToString("") { "#${it.name}" },
             date = post.date,
             time = post.time,
             description = post.description,

@@ -36,7 +36,7 @@ class User (
     )
     fun update(username: String?, password: String?, description: String?, passwordEncoder: PasswordEncoder){
         this.username = username ?: this.username
-        this.password = passwordEncoder.encode(password) ?: this.password
+        this.password = if (password != null) passwordEncoder.encode(password) else this.password
         this.description = description ?: this.description
     }
 }

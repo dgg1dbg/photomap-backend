@@ -26,7 +26,7 @@ class UserService(
     }
     @Transactional
     fun edit(user: User, editRequest: UserDto.UserEditRequest): User {
-        if(userRepository.findByUsername(editRequest.username) != null) {
+        if(user.username != editRequest.username && userRepository.findByUsername(editRequest.username) != null) {
             throw UserAlreadyExistsException()
         }
         user.update(editRequest.username, editRequest.password, editRequest.description, passwordEncoder)
