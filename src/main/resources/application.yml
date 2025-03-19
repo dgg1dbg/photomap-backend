@@ -11,9 +11,9 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: jdbc:mysql://localhost:3306/photomap
-    username: jmlee
-    password: 1234
+    url:
+    username: 
+    password:
   jpa:
     generate-ddl: false
     hibernate:
